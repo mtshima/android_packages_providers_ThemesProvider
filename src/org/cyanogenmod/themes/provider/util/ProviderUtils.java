@@ -26,7 +26,6 @@ import android.provider.ThemesContract;
 import android.provider.ThemesContract.MixnMatchColumns;
 import android.provider.ThemesContract.PreviewColumns;
 import android.provider.ThemesContract.ThemesColumns;
-import android.text.TextUtils;
 import org.cyanogenmod.themes.provider.ThemesOpenHelper;
 
 import java.util.ArrayList;
@@ -115,8 +114,6 @@ public class ProviderUtils {
     }
 
     public static String[] modifyPreviewsProjection(String[] projection) {
-        if (projection == null) return null;
-
         Set<String> validKeys =
                 new HashSet<String>(Arrays.asList(ThemesContract.PreviewColumns.VALID_KEYS));
         ArrayList<String> newProjection = new ArrayList<String>();
@@ -132,28 +129,15 @@ public class ProviderUtils {
 
     public static String modifyDefaultPreviewsSelection(String selection, String[] projection) {
         String newSelection = modifyPreviewsSelection(selection, projection);
-        if (!TextUtils.isEmpty(newSelection)) {
-            newSelection += " AND ";
-        } else {
-            newSelection = "";
-        }
-        newSelection += PreviewColumns.COMPONENT_ID + "=0";
+        newSelection += " AND " + PreviewColumns.COMPONENT_ID + "=0";
         return newSelection;
     }
 
     public static String modifyPreviewsSelection(String selection, String[] projection) {
-        if (selection == null && projection == null) return null;
-
-        String newSelection = "";
-        if (!TextUtils.isEmpty(selection)) {
-            newSelection += selection;
-        }
+        String newSelection = selection;
         List<String> projectionItems = getPreviewProjectionItems(projection);
-        if (projectionItems != null && projectionItems.size() > 0) {
-            if (!TextUtils.isEmpty(newSelection)) {
-                newSelection += " AND ";
-            }
-            newSelection += "(";
+        if (projectionItems.size() > 0) {
+            newSelection += " AND (";
             for (int i = 0; i < projectionItems.size(); i++) {
                 newSelection += PreviewColumns.COL_KEY + "=?";
                 if (i < projectionItems.size() - 1) {
@@ -167,23 +151,16 @@ public class ProviderUtils {
 
     public static String[] modifyPreviewsSelectionArgs(String[] selectionArgs,
             String[] projection) {
-        if (selectionArgs == null && projection == null) return null;
-
-        ArrayList<String> newSelectionArgs = new ArrayList<String>();
-        if (selectionArgs != null) {
-            newSelectionArgs.addAll(Arrays.asList(selectionArgs));
-        }
+        ArrayList<String> newSelectionArgs =
+                new ArrayList<String>(Arrays.asList(selectionArgs));
         List<String> projectionItems = getPreviewProjectionItems(projection);
-        if (projectionItems != null) {
-            for (String item : projectionItems) {
-                newSelectionArgs.add(item);
-            }
+        for (String item : projectionItems) {
+            newSelectionArgs.add(item);
         }
         return newSelectionArgs.toArray(new String[newSelectionArgs.size()]);
     }
 
     public static List<String> getPreviewProjectionItems(String[] projection) {
-        if (projection == null) return null;
         Set<String> validKeys =
                 new HashSet<String>(Arrays.asList(PreviewColumns.VALID_KEYS));
         ArrayList<String> newProjection = new ArrayList<String>();
